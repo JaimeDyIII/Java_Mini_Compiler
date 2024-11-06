@@ -1,7 +1,7 @@
 enum TokenType{
-    INT_LITERAL,
+    CONSTANT,
     VAR_IDENTIFIER,
-    OPERATOR,
+    ASS_OPERATOR,
     ADD,
     SUB,
     DIV,

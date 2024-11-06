@@ -8,7 +8,7 @@ public class Token{
     }
 
     public TokenType getTokenType(){
-        return TokenType.MULype;
+        return tokenType;
     }
 
     public String getLexeme(){
