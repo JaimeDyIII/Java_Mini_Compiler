@@ -1,0 +1,6 @@
+int num1 = 324
+String
+float
+double
+char
+boolean

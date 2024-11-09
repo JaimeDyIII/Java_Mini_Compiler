@@ -1,17 +1,26 @@
 public class Token{
-    private TokenType tokenType;
+    enum Type {
+        DATA_TYPES, IDENTIFIER, CONSTANT, STRING_LIT, ASSIGN_OP, EOF,
+    }
+
+    private Type type;
     private String lexeme;
 
-    Token(TokenType tokenType, String lexeme){
-        this.tokenType = tokenType;
+    Token(Type type, String lexeme){
+        this.type = type;
         this.lexeme = lexeme;
     }
 
-    public TokenType getTokenType(){
-        return tokenType;
+    public Type getTokenType(){
+        return type;
     }
 
     public String getLexeme(){
         return lexeme;
+    }
+
+    @Override
+    public String toString() {
+        return "Token{" + "type=" + type + ", value='" + lexeme + '\'' + '}';
     }
 }
