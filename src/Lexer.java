@@ -1,93 +1,53 @@
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 public class Lexer{
-    BufferedReader br;
-    int currentChar;
     List<Token> tokens;
-    
     public List<Token> getTokens(){
         return tokens;
     }
 
     public Lexer(File file) throws IOException {
-        FileReader fr = new FileReader(file);
-        br = new BufferedReader(fr);
-        tokenize();
-    }
-
-    private String buildWord() throws IOException{
-        // if char is letter, will append the string until 
-        // the reader reads something that is not a letter
-        // or a number because identifiers can have a number
-        // but should always start as a letter
-        StringBuilder str = new StringBuilder();
-
-        while(Character.isAlphabetic(currentChar) || Character.isDigit(currentChar)){
-            str.append((char) currentChar);
-            currentChar = br.read();
-        }
-
-        return str.toString();
-    } 
-
-    private Integer buildNumber() throws IOException{
-        // if char is number, will append the string until
-        // the reader reads something that is not a number
-        StringBuilder num = new StringBuilder();
-
-        while(Character.isDigit(currentChar)){
-            num.append((char) currentChar);
-            currentChar = br.read();
-        }
-
-        return Integer.valueOf(num.toString());
+        String fileString = Files.readString(file.toPath());
+        tokenize(fileString);
     }
 
 
-    private void tokenizeLetters(String str){
-        switch(str){
-            case "int":
-                tokens.add(new Token(Token.Type.DATA_TYPES, str));
-                break;
-            case "String":
-                tokens.add(new Token(Token.Type.DATA_TYPES, str));
-                break;
-            case "boolean":
-                tokens.add(new Token(Token.Type.DATA_TYPES, str));
-                break;   
-            case "char":
-                tokens.add(new Token(Token.Type.DATA_TYPES, str));
-                break;
-            case "float":
-                tokens.add(new Token(Token.Type.DATA_TYPES, str));
-                break;
-            default:
-                tokens.add(new Token(Token.Type.IDENTIFIER, str));
-                break;
-        }
-    }
-
-    public List<Token> tokenize() throws IOException{
+    public List<Token> tokenize(String input) throws IOException{
         tokens = new ArrayList<>();
 
-        while((currentChar = br.read()) != -1){
-            if(Character.isAlphabetic(currentChar)){
-                String str = buildWord();
+        String dataTypesPattern = "int|String|boolean|char|float|double";
+        String identifierPattern = "[a-zA-Z_][a-zA-Z0-9_]*";
+        String constantPattern = "\\d+(\\.\\d+)?";
+        String stringLitPattern = "I'm gonna cry, I'm just gonna add this to follow";
+        String assignOpPattern = "=";
 
-                tokenizeLetters(str);
+        String tokenPatterns = "(" + dataTypesPattern + 
+                             ")|(" + identifierPattern + 
+                             ")|(" + constantPattern + 
+                             ")|(" + stringLitPattern + 
+                             ")|(" + assignOpPattern + ")";
 
-            } else if(Character.isDigit(currentChar)){
-                Integer num = buildNumber();
+        Pattern pattern = Pattern.compile(tokenPatterns);
+        Matcher matcher = pattern.matcher(input);
 
-                tokens.add(new Token(Token.Type.CONSTANT, num.toString()));
-
-            } else if(currentChar == '=') {
-                tokens.add(new Token(Token.Type.ASSIGN_OP, "="));
+        while (matcher.find()) {
+            if (matcher.group(1) != null) {
+                tokens.add(new Token(Token.Type.DATA_TYPES, matcher.group()));
+            } else if (matcher.group(2) != null) {
+                tokens.add(new Token(Token.Type.IDENTIFIER, matcher.group()));
+            } else if (matcher.group(3) != null) {
+                tokens.add(new Token(Token.Type.CONSTANT, matcher.group()));
+            } else if (matcher.group(4) != null) {
+                tokens.add(new Token(Token.Type.STRING_LIT, matcher.group()));
+            } else if (matcher.group(5) != null) {
+                tokens.add(new Token(Token.Type.ASSIGN_OP, matcher.group()));
             }
         }
         return tokens;

@@ -1,6 +1,3 @@
 int num1 = 324
-String
-float
-double
-char
-boolean
+String str = "string"
+float fl = 5.0
