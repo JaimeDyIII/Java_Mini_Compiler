@@ -24,15 +24,19 @@ public class Lexer{
 
         String dataTypesPattern = "int|String|boolean|char|float|double";
         String identifierPattern = "[a-zA-Z_][a-zA-Z0-9_]*";
-        String constantPattern = "\\d+(\\.\\d+)?";
-        String stringLitPattern = "I'm gonna cry, I'm just gonna add this to follow";
+        String stringLitPattern = "\"[^\"]*\"";
+        String floatLitPattern = "-?\\d+\\.\\d+";
+        String intLitPattern = "\\d+";
         String assignOpPattern = "=";
+        String delimiterPattern = ";";
 
         String tokenPatterns = "(" + dataTypesPattern + 
-                             ")|(" + identifierPattern + 
-                             ")|(" + constantPattern + 
-                             ")|(" + stringLitPattern + 
-                             ")|(" + assignOpPattern + ")";
+                             ")|(" + identifierPattern +
+                             ")|(" + stringLitPattern +
+                             ")|(" + floatLitPattern +   
+                             ")|(" + intLitPattern +
+                             ")|(" + assignOpPattern + 
+                             ")|(" + delimiterPattern + ")";
 
         Pattern pattern = Pattern.compile(tokenPatterns);
         Matcher matcher = pattern.matcher(input);
@@ -43,13 +47,19 @@ public class Lexer{
             } else if (matcher.group(2) != null) {
                 tokens.add(new Token(Token.Type.IDENTIFIER, matcher.group()));
             } else if (matcher.group(3) != null) {
-                tokens.add(new Token(Token.Type.CONSTANT, matcher.group()));
-            } else if (matcher.group(4) != null) {
                 tokens.add(new Token(Token.Type.STRING_LIT, matcher.group()));
+            } else if (matcher.group(4) != null) {
+                tokens.add(new Token(Token.Type.FLOAT_LIT, matcher.group()));
             } else if (matcher.group(5) != null) {
+                tokens.add(new Token(Token.Type.INT_LIT, matcher.group()));
+            } else if (matcher.group(6) != null) {
                 tokens.add(new Token(Token.Type.ASSIGN_OP, matcher.group()));
+            } else if (matcher.group(7) != null) {
+                tokens.add(new Token(Token.Type.DELIMITER, matcher.group()));
             }
         }
+
+        tokens.add(new Token(Token.Type.EOF, "eof"));
         return tokens;
     }
 }
