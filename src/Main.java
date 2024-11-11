@@ -4,7 +4,7 @@ import java.util.List;
 
 public class Main{
     public static void main(String[] args) throws IOException{
-        File file = new File("./code.txt");
+        File file = new File("code.txt");
 
         Lexer lexer = new Lexer(file);
         List<Token> Tokens = lexer.getTokens();

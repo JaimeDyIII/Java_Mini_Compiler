@@ -1,3 +1,6 @@
 int num1 = 324;
 String str = "string";
-float fl = 5.0;
+float fl = 1e3f;
+Double ds = 5.0;
+char c = 2;
+byte b = 1;

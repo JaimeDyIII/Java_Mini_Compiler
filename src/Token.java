@@ -1,6 +1,6 @@
 public class Token{
     enum Type {
-        DATA_TYPES, IDENTIFIER, STRING_LIT, INT_LIT, FLOAT_LIT, ASSIGN_OP, DELIMITER, EOF,
+        DATA_TYPES, IDENTIFIER, STRING_LIT, CONSTANT, ASSIGN_OP, DELIMITER, EOF,
     }
 
     private Type type;

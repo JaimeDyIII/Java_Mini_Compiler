@@ -22,19 +22,17 @@ public class Lexer{
     public List<Token> tokenize(String input) throws IOException{
         tokens = new ArrayList<>();
 
-        String dataTypesPattern = "int|String|boolean|char|float|double";
+        String dataTypesPattern = "int|String|boolean|char|float|Double";
         String identifierPattern = "[a-zA-Z_][a-zA-Z0-9_]*";
         String stringLitPattern = "\"[^\"]*\"";
-        String floatLitPattern = "-?\\d+\\.\\d+";
-        String intLitPattern = "\\d+";
         String assignOpPattern = "=";
+        String constantPattern = "-?(?:\\d+(\\.\\d*)?|\\.\\d+)([eE][-+]?\\d+)?[fF]?";
         String delimiterPattern = ";";
 
         String tokenPatterns = "(" + dataTypesPattern + 
                              ")|(" + identifierPattern +
                              ")|(" + stringLitPattern +
-                             ")|(" + floatLitPattern +   
-                             ")|(" + intLitPattern +
+                             ")|(" + constantPattern +
                              ")|(" + assignOpPattern + 
                              ")|(" + delimiterPattern + ")";
 
@@ -49,16 +47,13 @@ public class Lexer{
             } else if (matcher.group(3) != null) {
                 tokens.add(new Token(Token.Type.STRING_LIT, matcher.group()));
             } else if (matcher.group(4) != null) {
-                tokens.add(new Token(Token.Type.FLOAT_LIT, matcher.group()));
+                tokens.add(new Token(Token.Type.CONSTANT, matcher.group()));
             } else if (matcher.group(5) != null) {
-                tokens.add(new Token(Token.Type.INT_LIT, matcher.group()));
-            } else if (matcher.group(6) != null) {
                 tokens.add(new Token(Token.Type.ASSIGN_OP, matcher.group()));
-            } else if (matcher.group(7) != null) {
+            } else if (matcher.group(6) != null) {
                 tokens.add(new Token(Token.Type.DELIMITER, matcher.group()));
             }
         }
-
         tokens.add(new Token(Token.Type.EOF, "eof"));
         return tokens;
     }
