@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 public class Lexer{
     List<Token> tokens;
+    
     public List<Token> getTokens(){
         return tokens;
     }
