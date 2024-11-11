@@ -22,19 +22,21 @@ public class Lexer{
     public List<Token> tokenize(String input) throws IOException{
         tokens = new ArrayList<>();
 
-        String dataTypesPattern = "int|String|boolean|char|float|Double";
+        String dataTypesPattern = "byte|short|int|String|boolean|char|float|Double";
         String identifierPattern = "[a-zA-Z_][a-zA-Z0-9_]*";
         String stringLitPattern = "\"[^\"]*\"";
         String assignOpPattern = "=";
-        String constantPattern = "-?(?:\\d+(\\.\\d*)?|\\.\\d+)([eE][-+]?\\d+)?[fF]?";
         String delimiterPattern = ";";
+        String constantPattern = "-?(?:\\d+(\\.\\d*)?|\\.\\d+)([eE][-+]?\\d+)?[fF]?";
+
+        
 
         String tokenPatterns = "(" + dataTypesPattern + 
                              ")|(" + identifierPattern +
                              ")|(" + stringLitPattern +
-                             ")|(" + constantPattern +
                              ")|(" + assignOpPattern + 
-                             ")|(" + delimiterPattern + ")";
+                             ")|(" + delimiterPattern +
+                             ")|(" + constantPattern + ")";
 
         Pattern pattern = Pattern.compile(tokenPatterns);
         Matcher matcher = pattern.matcher(input);
@@ -47,11 +49,11 @@ public class Lexer{
             } else if (matcher.group(3) != null) {
                 tokens.add(new Token(Token.Type.STRING_LIT, matcher.group()));
             } else if (matcher.group(4) != null) {
-                tokens.add(new Token(Token.Type.CONSTANT, matcher.group()));
-            } else if (matcher.group(5) != null) {
                 tokens.add(new Token(Token.Type.ASSIGN_OP, matcher.group()));
-            } else if (matcher.group(6) != null) {
+            } else if (matcher.group(5) != null) {
                 tokens.add(new Token(Token.Type.DELIMITER, matcher.group()));
+            } else if (matcher.group(6) != null) {
+                tokens.add(new Token(Token.Type.CONSTANT, matcher.group()));
             }
         }
         tokens.add(new Token(Token.Type.EOF, "eof"));
