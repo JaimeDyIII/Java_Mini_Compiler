@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 
 public class Lexer{
-    List<Token> tokens;
+    private List<Token> tokens;
     
     public List<Token> getTokens(){
         return tokens;
@@ -29,8 +29,6 @@ public class Lexer{
         String assignOpPattern = "=";
         String delimiterPattern = ";";
         String constantPattern = "-?(?:\\d+(\\.\\d*)?|\\.\\d+)([eE][-+]?\\d+)?[fF]?";
-
-        
 
         String tokenPatterns = "(" + dataTypesPattern + 
                              ")|(" + identifierPattern +
