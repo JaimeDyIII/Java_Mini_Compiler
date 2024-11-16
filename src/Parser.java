@@ -2,11 +2,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Parser{
-    static int position = 0;
-    static List<Token> tokens;
+    private int position;
+    private List<Token> tokens;
         
     public Parser(List<Token> tokens){
         tokens = new ArrayList<>();
+        position = 0;
     }
     
     private Token currentToken(){
