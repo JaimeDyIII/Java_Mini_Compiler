@@ -10,6 +10,7 @@ import javax.swing.border.*;
 public class GUI extends JFrame {
     private File file;
     private Lexer lexer;
+    private Parser parser;
     private List<Token> tokens;
 
     public GUI() {
@@ -27,6 +28,7 @@ public class GUI extends JFrame {
         JTextArea codeTextArea = new JTextArea();
         codeTextField.setEditable(false);
         codeTextArea.setEditable(false);
+
         
         codeTextArea.setBorder(new CompoundBorder(
             new LineBorder(Color.GRAY, 1),
@@ -54,6 +56,8 @@ public class GUI extends JFrame {
 
         JButton syntaxAnalysisButton = new JButton("Syntax Analysis");
         syntaxAnalysisButton.addActionListener((ActionEvent e) -> {
+            parser = new Parser(tokens);
+            
         });
 
         JButton semanticAnalysisButton = new JButton("Semantic Analysis");
@@ -98,6 +102,7 @@ public class GUI extends JFrame {
                 codeTextField.setText("No file selected.");
             }
         });
+        
 
         if(file == null){
             lexicalAnalysisButton.setEnabled(false);

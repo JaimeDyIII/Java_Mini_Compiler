@@ -30,7 +30,7 @@ public class Lexer{
         String delimiterPattern = ";";
         String constantPattern = "-?(?:\\d+(\\.\\d*)?|\\.\\d+)([eE][-+]?\\d+)?[fF]?";
 
-        String tokenPatterns = "(" + dataTypesPattern + 
+        String tokenPatterns = "(\\s+)|(" + dataTypesPattern + 
                              ")|(" + identifierPattern +
                              ")|(" + stringLitPattern +
                              ")|(" + assignOpPattern + 
@@ -41,20 +41,32 @@ public class Lexer{
         Matcher matcher = pattern.matcher(input);
 
         while (matcher.find()) {
-            if (matcher.group(1) != null) {
+            if(matcher.group(1) != null){
+                continue;
+            } else if(matcher.group(2) != null) {
                 tokens.add(new Token(Token.Type.DATA_TYPES, matcher.group()));
-            } else if (matcher.group(2) != null) {
-                tokens.add(new Token(Token.Type.IDENTIFIER, matcher.group()));
             } else if (matcher.group(3) != null) {
-                tokens.add(new Token(Token.Type.STRING_LIT, matcher.group()));
+                tokens.add(new Token(Token.Type.IDENTIFIER, matcher.group()));
             } else if (matcher.group(4) != null) {
-                tokens.add(new Token(Token.Type.ASSIGN_OP, matcher.group()));
+                tokens.add(new Token(Token.Type.STRING_LIT, matcher.group()));
             } else if (matcher.group(5) != null) {
-                tokens.add(new Token(Token.Type.DELIMITER, matcher.group()));
+                tokens.add(new Token(Token.Type.ASSIGN_OP, matcher.group()));
             } else if (matcher.group(6) != null) {
+                tokens.add(new Token(Token.Type.DELIMITER, matcher.group()));
+            } else if (matcher.group(7) != null) {
                 tokens.add(new Token(Token.Type.CONSTANT, matcher.group()));
             }
         }
+
+        String nonTokenPattern = "((?!" + tokenPatterns +").)+";
+
+        pattern = Pattern.compile(nonTokenPattern);
+        matcher = pattern.matcher(input);
+
+        while(matcher.find()){
+            System.out.println("Unexpected token found: " + matcher.group());
+        }
+
         tokens.add(new Token(Token.Type.EOF, "eof"));
         return tokens;
     }
