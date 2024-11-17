@@ -57,7 +57,8 @@ public class Lexer{
                 tokens.add(new Token(Token.Type.CONSTANT, matcher.group()));
             }
         }
-
+        
+        // bug found, matched a quote even though there is no unclosed quote
         String nonTokenPattern = "((?!" + tokenPatterns +").)+";
 
         pattern = Pattern.compile(nonTokenPattern);

@@ -1,3 +1,2 @@
 int num1 = 324;
 String str = "string";
-asf;adsf04r22;ad'f" 

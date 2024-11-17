@@ -12,9 +12,14 @@ public class GUI extends JFrame {
     private Lexer lexer;
     private Parser parser;
     private List<Token> tokens;
+    private JTextField codeTextField;
 
     public GUI() {
         appFrame();
+    }
+
+    public void updateStatus(String message){
+        codeTextField.setText(message);
     }
 
     public void appFrame(){
@@ -23,8 +28,7 @@ public class GUI extends JFrame {
         setSize(960, 540);
         setLocationRelativeTo(null);
 
-
-        JTextField codeTextField = new JTextField();
+        codeTextField = new JTextField();
         JTextArea codeTextArea = new JTextArea();
         codeTextField.setEditable(false);
         codeTextArea.setEditable(false);
@@ -36,7 +40,6 @@ public class GUI extends JFrame {
         ));
         
         codeTextField.setPreferredSize(new Dimension(400, 30));
-
 
         JButton lexicalAnalysisButton = new JButton("Lexical Analysis");
         lexicalAnalysisButton.addActionListener((ActionEvent e) -> {
@@ -56,8 +59,7 @@ public class GUI extends JFrame {
 
         JButton syntaxAnalysisButton = new JButton("Syntax Analysis");
         syntaxAnalysisButton.addActionListener((ActionEvent e) -> {
-            parser = new Parser(tokens);
-            
+            parser = new Parser(tokens, this);
         });
 
         JButton semanticAnalysisButton = new JButton("Semantic Analysis");
@@ -103,6 +105,7 @@ public class GUI extends JFrame {
             }
         });
         
+
 
         if(file == null){
             lexicalAnalysisButton.setEnabled(false);
