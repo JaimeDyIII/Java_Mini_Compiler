@@ -40,9 +40,7 @@ public class Parser{
     private void identifier(){
         if(currentToken().getTokenType() == Token.Type.IDENTIFIER){
             nextToken();
-            if(currentToken().getTokenType() == Token.Type.DELIMITER){
-                delimeter();
-            } else if(currentToken().getTokenType() == Token.Type.ASSIGN_OP){
+            if(currentToken().getTokenType() == Token.Type.ASSIGN_OP){
                 assignmentOperator();
             }
         } else {
@@ -105,7 +103,7 @@ public class Parser{
         if(currentToken().getTokenType() == Token.Type.EOF){
             gui.updateStatus("Syntax Analysis Successful");
         } else {
-            gui.updateStatus("Syntax Error!");
+            gui.updateStatus("Syntax Analysis Unsuccessful! Syntax Error Found");
         }
     }
 }

@@ -3,72 +3,252 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 
 public class Lexer{
+    // restart, implement the lexer on the book, read char per char
+    private int currentChar = 0;
     private List<Token> tokens;
-    
+    private GUI gui;
+    String fileString;
+    StringBuilder stringBuilder;
+
     public List<Token> getTokens(){
         return tokens;
     }
 
-    public Lexer(File file) throws IOException {
-        String fileString = Files.readString(file.toPath());
+    public Lexer(File file, GUI gui) throws IOException {
+        this.gui = gui;
+        fileString = Files.readString(file.toPath());
         tokenize(fileString);
     }
 
+    private boolean isLetter(char c){   
+        return Character.isLetter(c);
+    }
 
-    public List<Token> tokenize(String input) throws IOException{
-        tokens = new ArrayList<>();
+    private boolean isDigit(char c){
+        return Character.isDigit(c);
+    }
 
-        String dataTypesPattern = "byte|short|int|String|boolean|char|float|Double";
-        String identifierPattern = "[a-zA-Z_][a-zA-Z0-9_]*";
-        String stringLitPattern = "\"[^\"]*\"";
-        String assignOpPattern = "=";
-        String delimiterPattern = ";";
-        String constantPattern = "-?(?:\\d+(\\.\\d*)?|\\.\\d+)([eE][-+]?\\d+)?[fF]?";
+    private boolean isWhitespace(char c){
+        return Character.isWhitespace(c);
+    }
 
-        String tokenPatterns = "(\\s+)|(" + dataTypesPattern + 
-                             ")|(" + identifierPattern +
-                             ")|(" + stringLitPattern +
-                             ")|(" + assignOpPattern + 
-                             ")|(" + delimiterPattern +
-                             ")|(" + constantPattern + ")";
+    private char peekPreviousChar(int numChar){
+        if(numChar <= 0){
+            return '\0';
+        }
 
-        Pattern pattern = Pattern.compile(tokenPatterns);
-        Matcher matcher = pattern.matcher(input);
+        return fileString.charAt(currentChar - numChar);
+    }
 
-        while (matcher.find()) {
-            if(matcher.group(1) != null){
-                continue;
-            } else if(matcher.group(2) != null) {
-                tokens.add(new Token(Token.Type.DATA_TYPES, matcher.group()));
-            } else if (matcher.group(3) != null) {
-                tokens.add(new Token(Token.Type.IDENTIFIER, matcher.group()));
-            } else if (matcher.group(4) != null) {
-                tokens.add(new Token(Token.Type.STRING_LIT, matcher.group()));
-            } else if (matcher.group(5) != null) {
-                tokens.add(new Token(Token.Type.ASSIGN_OP, matcher.group()));
-            } else if (matcher.group(6) != null) {
-                tokens.add(new Token(Token.Type.DELIMITER, matcher.group()));
-            } else if (matcher.group(7) != null) {
-                tokens.add(new Token(Token.Type.CONSTANT, matcher.group()));
+    private char peekNextChar(int numChar){
+        if(numChar >= fileString.length()){
+            return '\0';
+        }
+
+        return fileString.charAt(currentChar + numChar);
+    }
+
+    private char getChar(){
+        if(isEndOfFile()){
+            return '\0';    
+        }
+        return fileString.charAt(currentChar);
+    }
+
+    private char nextChar(){
+        currentChar++;
+        return getChar();
+    }
+
+    private boolean isEndOfFile(){
+        return currentChar >= fileString.length();
+    }
+    
+    private String buildLetters(){
+        stringBuilder = new StringBuilder();
+        while((isLetter(getChar()) || isDigit(getChar()) || getChar() == '_' || getChar() == '-') && !isEndOfFile()){
+            stringBuilder.append(getChar());
+            nextChar();
+        }
+        return stringBuilder.toString();
+    }
+    
+
+    private String buildNumber(){   
+        stringBuilder = new StringBuilder(); 
+
+        // Alternative floating-point without integer with optional positive or negative sign
+        if(peekPreviousChar(1) == '.'){
+            if(peekPreviousChar(2) == '+' || peekPreviousChar(2) == '-'){
+                stringBuilder.append(peekPreviousChar(2));
+            }
+            stringBuilder.append(peekPreviousChar(1));
+
+            while(isDigit(getChar())){
+                stringBuilder.append(getChar());
+                nextChar();
             }
         }
-        
-        // bug found, matched a quote even though there is no unclosed quote
-        String nonTokenPattern = "((?!" + tokenPatterns +").)+";
 
-        pattern = Pattern.compile(nonTokenPattern);
-        matcher = pattern.matcher(input);
-
-        while(matcher.find()){
-            System.out.println("Unexpected token found: " + matcher.group());
+        // for number with integers and optional floating-point
+        // Optional sign before the number
+        if(peekPreviousChar(1) == '-' || peekPreviousChar(1) == '+'){
+            stringBuilder.append(peekPreviousChar(1));
         }
 
-        tokens.add(new Token(Token.Type.EOF, "eof"));
-        return tokens;
+        // Integer or Floating-point
+        if(isDigit(getChar())){
+            while(isDigit(getChar())){
+                stringBuilder.append(getChar());
+                nextChar();
+            }
+
+            if(getChar() == '.'){
+                stringBuilder.append(getChar());  
+
+                while(isDigit(getChar())){
+                    stringBuilder.append(getChar());
+                    nextChar();
+                }
+            }
+        }
+
+        // optional cientific notation
+        if(getChar() == 'e' || getChar() == 'E'){
+            stringBuilder.append(getChar());
+            nextChar();
+
+            if(getChar() == '+' || getChar() == '-'){
+                stringBuilder.append(getChar());
+            }
+
+            while(isDigit(getChar())){
+                stringBuilder.append(getChar());
+                nextChar();
+            }
+        }
+
+        // optional float suffix
+        if(getChar() == 'f' || getChar() == 'F'){
+            stringBuilder.append(getChar());
+            nextChar();
+        }
+
+        return stringBuilder.toString();
+    }
+
+
+    private void tokenizeLetter(){
+        String str = buildLetters();
+        
+        switch(str){
+            case "short":
+            case "int":
+            case "byte":
+            case "float":
+            case "double":
+            case "boolean":
+            case "char":
+            case "String":
+                tokens.add(new Token(Token.Type.DATA_TYPES, str));
+                break;
+            default:
+                tokens.add(new Token(Token.Type.IDENTIFIER, str));
+                break;
+        }
+    }
+
+    private void tokenizeDigit(){
+        String str = buildNumber();
+        if(isWhitespace(getChar()) || getChar() == ';'){
+            tokens.add(new Token(Token.Type.CONSTANT, str));
+        } else {
+            stringBuilder = new StringBuilder();
+            stringBuilder.append(str);
+
+            while(!isWhitespace(peekNextChar(1)) && peekNextChar(1) != ';'){
+                nextChar();
+                stringBuilder.append(getChar());
+            }
+
+            System.out.println("Unexpected token found: " + stringBuilder.toString());
+        }
+    }
+
+    private void tokenizeStringLiteral(){
+        stringBuilder = new StringBuilder();
+        stringBuilder.append(getChar());
+        nextChar();
+
+        while (getChar() != '"' && !isEndOfFile()){
+            stringBuilder.append(getChar());
+            nextChar();
+        }
+
+        if(getChar() == '"'){
+            stringBuilder.append(getChar());
+        }
+
+        if(isEndOfFile()){
+            System.out.println("Unclosed String literal found: ");
+        } else {
+            tokens.add(new Token(Token.Type.STRING_LIT, stringBuilder.toString()));
+        }
+    }
+
+    private void tokenizeCharLiteral(){
+        stringBuilder = new StringBuilder();
+        stringBuilder.append(getChar());
+        nextChar();
+
+        while (getChar() != '\'' && !isEndOfFile()){
+            stringBuilder.append(getChar());
+            nextChar();
+        }
+
+        if(getChar() == '\''){
+            stringBuilder.append(getChar());
+        }
+
+        if(isEndOfFile()){
+            System.out.println("Unclosed Character literal found: ");
+        } else {
+            tokens.add(new Token(Token.Type.CHAR_LIT, stringBuilder.toString()));
+        }
+    }
+
+    public void tokenize(String fileString) throws IOException{
+        tokens = new ArrayList<>();
+
+        while(!isEndOfFile()){
+            char c = getChar();
+            switch(c){
+                case '"':
+                    tokenizeStringLiteral();
+                    break;
+                case '\'':
+                    tokenizeCharLiteral();
+                    break;
+                case '=':
+                    tokens.add(new Token(Token.Type.ASSIGN_OP, "="));
+                    break;
+                case ';':
+                    tokens.add(new Token(Token.Type.DELIMITER, ";"));
+                    break;
+                default:
+                    if(isWhitespace(c)){
+                        // ignore
+                    } else if(isLetter(c)){
+                        tokenizeLetter();
+                    } else if(isDigit(c)){
+                        tokenizeDigit();
+                    } else {
+                        System.out.println("Unexpected character found: " + c);
+                    }
+            }
+            nextChar();
+        }
     }
 }

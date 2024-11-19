@@ -44,10 +44,8 @@ public class GUI extends JFrame {
         JButton lexicalAnalysisButton = new JButton("Lexical Analysis");
         lexicalAnalysisButton.addActionListener((ActionEvent e) -> {
             try {
-                lexer = new Lexer(file);
+                lexer = new Lexer(file, this);
                 tokens = lexer.getTokens();
-                
-                codeTextField.setText("Lexical Analysis Completed!");
                 
                 for(Token token: tokens){
                     System.out.println(token.toString());
