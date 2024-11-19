@@ -1,5 +1,5 @@
 int num1 = 324;
-String str1 = "string";
-char c = 'c';
 float f = 3.14f;
 double d = 1e21;
+char c = 'c';
+String s = "s";

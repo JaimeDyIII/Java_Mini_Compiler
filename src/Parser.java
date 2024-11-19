@@ -1,10 +1,12 @@
 import java.util.List;
 
 public class Parser{
+    // improvement needed, need to allow variable declaration and variable assignment, 
+    // need to allow int a = 0;, int a;, a = 0; but not a;
     private int position;
     private List<Token> tokens;
     private GUI gui;
-        
+
     public Parser(List<Token> tokens, GUI gui){
         this.gui = gui;
         this.tokens = tokens;
@@ -53,7 +55,9 @@ public class Parser{
             nextToken();
             if(currentToken().getTokenType() == Token.Type.STRING_LIT){
                 stringLiteral();
-            } else if (currentToken().getTokenType() == Token.Type.CONSTANT) {
+            } else if (currentToken().getTokenType() == Token.Type.CHAR_LIT) {
+                charLiteral();
+            }else if (currentToken().getTokenType() == Token.Type.CONSTANT) {
                 constant();
             }
         } else {
@@ -63,6 +67,15 @@ public class Parser{
 
     private void stringLiteral(){
         if(currentToken().getTokenType() == Token.Type.STRING_LIT){
+            nextToken();
+            delimeter();
+        } else {
+            syntaxErrorMessage(currentToken());
+        }
+    }
+
+    private void charLiteral(){
+        if(currentToken().getTokenType() == Token.Type.CHAR_LIT){
             nextToken();
             delimeter();
         } else {
