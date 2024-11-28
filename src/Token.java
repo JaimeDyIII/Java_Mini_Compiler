@@ -1,13 +1,13 @@
 public class Token{
     enum Type {
         // Literals
-        IDENTIFIER, STRING_LIT, CHAR_LIT, CONSTANT, 
+        IDENTIFIER, STRING_LIT, CHAR_LIT, 
         
         // Data Type
         DATA_TYPES, 
         
         // Data Types
-        BYTE, SHORT, INT, CHAR, FLOAT, DOUBLE, BOOLEAN,
+        BYTE, SHORT, INT, LONG, FLOAT, DOUBLE, BOOLEAN,
 
         // Single Character
         ASSIGN_OP, DELIMITER, 

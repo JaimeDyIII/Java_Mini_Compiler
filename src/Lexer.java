@@ -12,7 +12,7 @@ public class Lexer{
     String fileString;
     StringBuilder stringBuilder;
     boolean encounteredError = false;
-
+    String state;
     public List<Token> getTokens(){
         return tokens;
     }
@@ -44,7 +44,7 @@ public class Lexer{
     }
 
     private char peekNextChar(int numChar){
-        if(numChar >= fileString.length()){
+        if((currentChar + numChar) >= fileString.length()){
             return '\0';
         }
 
@@ -75,10 +75,10 @@ public class Lexer{
         }
         return stringBuilder.toString();
     }
-    
 
     private String buildNumber(){   
         stringBuilder = new StringBuilder();
+        state = "";
 
         // Alternative floating-point without integer with optional positive or negative sign
         if(peekPreviousChar(1) == '.'){
@@ -91,6 +91,7 @@ public class Lexer{
                 stringBuilder.append(getChar());
                 nextChar();
             }
+            state = "float";
         }
 
         // for number with integers and optional floating-point
@@ -106,7 +107,10 @@ public class Lexer{
                 nextChar();
             }
 
+            state = "int";
+
             if(getChar() == '.'){
+                state = "float";
                 stringBuilder.append(getChar());  
                 nextChar();
             }
@@ -119,6 +123,7 @@ public class Lexer{
 
         // optional scientific notation
         if(getChar() == 'e' || getChar() == 'E'){
+            state = "double";
             stringBuilder.append(getChar());
             nextChar();
 
@@ -132,14 +137,21 @@ public class Lexer{
             }
         }
 
-        // optional float suffix
+        // optional float or double suffix
         if(getChar() == 'f' || getChar() == 'F'){
+            state = "float";
+            stringBuilder.append(getChar());
+            nextChar();
+        } else if(getChar() == 'd' || getChar() == 'D'){
+            state = "double";
             stringBuilder.append(getChar());
             nextChar();
         }
 
+
         // return immediately
         if(isLetter(getChar())){
+            state = "error";
             return stringBuilder.toString();
         }
         
@@ -161,23 +173,42 @@ public class Lexer{
             case "String":
                 tokens.add(new Token(Token.Type.DATA_TYPES, str));
                 break;
+            case "true":
+            case "false":
+                tokens.add(new Token(Token.Type.BOOLEAN, str));
+
             default:
                 tokens.add(new Token(Token.Type.IDENTIFIER, str));
                 break;
         }
+        currentChar--;
     }
 
     private void tokenizeDigit(){
         String str = buildNumber();
         if(isWhitespace(getChar()) || getChar() == ';'){
-            tokens.add(new Token(Token.Type.CONSTANT, str));
-            currentChar--;
+            switch(state){
+                case "int":
+                    tokens.add(new Token(Token.Type.INT, str));
+                    break;
+                case "float":
+                    tokens.add(new Token(Token.Type.FLOAT, str));
+                    break;
+                case "double":
+                    tokens.add(new Token(Token.Type.DOUBLE, str));
+                    break;
+                case "error":
+                case "":
+                default:
+                    System.out.println("error");
+            } 
+            currentChar--;  
         } else {
             encounteredError = true;
             stringBuilder = new StringBuilder();
             stringBuilder.append(str);
 
-            while(!isWhitespace(peekNextChar(1)) && peekNextChar(1) != ';'){
+            while(!isWhitespace(peekNextChar(1)) && peekNextChar(1) != ';' && !isEndOfFile()){
                 nextChar();
                 stringBuilder.append(getChar());
             }
@@ -202,7 +233,7 @@ public class Lexer{
 
         if(isEndOfFile()){
             encounteredError = true;
-            System.out.println("Unclosed String literal found: ");
+            System.out.println("Unclosed String literal found: " + stringBuilder.toString());
         } else {
             tokens.add(new Token(Token.Type.STRING_LIT, stringBuilder.toString()));
         }
@@ -224,7 +255,7 @@ public class Lexer{
 
         if(isEndOfFile()){
             encounteredError = true;
-            System.out.println("Unclosed Character literal found: ");
+            System.out.println("Unclosed Character literal found: " + stringBuilder.toString());
         } else {
             tokens.add(new Token(Token.Type.CHAR_LIT, stringBuilder.toString()));
         }

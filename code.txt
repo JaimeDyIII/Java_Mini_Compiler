@@ -1,5 +1,4 @@
-int num1 = 324;
-float f = 3.14f;
-double d = 1e21;
-char c = 'c';
-String s = "s";
+int i = 123;
+float f;
+double d = 12.2e13d;
+d = 12.32d;
