@@ -1,7 +1,6 @@
 import java.util.List;
 
 public class Parser{
-    // redo parser
     private int position;
     private List<Token> tokens;
     private GUI gui;
@@ -24,18 +23,14 @@ public class Parser{
     }
     
     private void nextToken(){
-        position++;
+        if(position < tokens.size() - 1){
+            position++;
+        }
     }
 
     private boolean isEndOfFile(){
         return currentTokenType() == Token.Type.EOF;
 
-    }
-
-    private void reachedEOF(){
-        if(isEndOfFile()){
-            System.out.println("Reached End of file while parsing!");
-        }
     }
 
     private boolean isDelimiter(){
@@ -46,19 +41,17 @@ public class Parser{
         return currentTokenType() == Token.Type.ASSIGN_OP;
     }
 
-
     private void syntaxError(Token token){
         encounteredError = true;
-        System.out.println("Syntax Error: " + token);
+        if(isEndOfFile()){
+            System.out.println("Reached end of file while parsing!");
+        } else {
+            System.out.println("Syntax Error: " + token);
+        }
     }
 
     private boolean isData(){
-        return  currentTokenType() == Token.Type.BYTE       || 
-                currentTokenType() == Token.Type.SHORT      || 
-                currentTokenType() == Token.Type.INT        || 
-                currentTokenType() == Token.Type.LONG       || 
-                currentTokenType() == Token.Type.FLOAT      || 
-                currentTokenType() == Token.Type.DOUBLE     || 
+        return  currentTokenType() == Token.Type.CONSTANT   || 
                 currentTokenType() == Token.Type.CHAR_LIT   || 
                 currentTokenType() == Token.Type.STRING_LIT;
     }
@@ -67,79 +60,64 @@ public class Parser{
         switch(currentTokenType()){
             case DATA_TYPES:
                 nextToken();
-                DataType();
+                variableDeclaration();
                 break;
             case IDENTIFIER:
                 nextToken();
                 variableReassignment();
                 break;
             case EOF:
-                encounteredError = true;
-                System.out.println("Reached End of file while parsing!");
+                syntaxError(currentToken());
                 break;
             default:
                 syntaxError(currentToken());
         }
     }
 
-    private void DataType(){
+    private void variableDeclaration(){
+        if(currentTokenType() != Token.Type.IDENTIFIER){
+            syntaxError(currentToken());
+            return;
+        }
+
+        nextToken();
+
         switch(currentTokenType()){
-            case IDENTIFIER:
+            case DELIMITER:
                 nextToken();
-                identifier();
+                
+                if(!isEndOfFile()){
+                    expression();
+                } else {
+                    syntaxError(currentToken());
+                }
+                
                 break;
-            case EOF:
-                encounteredError = true;
-                System.out.println("Reached End of file while parsing!");
-                break;
-            default:
-                syntaxError(currentToken());
-        }
-    }
-
-    private void identifier(){
-        switch(currentTokenType()){
             case ASSIGN_OP:
                 nextToken();
                 variableInstatiation();
                 break;
-            case DELIMITER:
-                nextToken();
-                variableDeclaration();
-                break;
-            case EOF:
-                encounteredError = true;
-                System.out.println("Reached End of file while parsing!");
-                break;
             default:
                 syntaxError(currentToken());
-        }
-
-    }
-
-    private void variableDeclaration(){
-        if(!isEndOfFile()){
-            expression();
-
         }
     }
 
     private void variableInstatiation(){
         if(!isData()) {
             syntaxError(currentToken());
-            reachedEOF();
             return;
         }
+
         nextToken();
 
         if(!isDelimiter()){
             syntaxError(currentToken());
-            reachedEOF();
             return;
         }
+
         nextToken();
         
-        if(currentTokenType() != Token.Type.EOF){
+        if(!isEndOfFile()){
             expression();
         }
     }
@@ -147,29 +125,28 @@ public class Parser{
     private void variableReassignment(){
         if(!isAssignment()){
             syntaxError(currentToken());
-            reachedEOF();
             return;
         }
+
         nextToken();
 
         if(!isData()){
             syntaxError(currentToken());
-            reachedEOF();
             return;
         }
+
         nextToken();
 
         if(!isDelimiter()){
             syntaxError(currentToken());
-            reachedEOF();
             return;
         }
+
         nextToken();
     
         if(!isEndOfFile()){
             expression();
         }
-
     }
 
     public void parse(){

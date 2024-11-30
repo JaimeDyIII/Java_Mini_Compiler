@@ -5,14 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Lexer{
-    // need to add boolean literal
     private int currentChar = 0;
     private List<Token> tokens;
     private GUI gui;
     String fileString;
     StringBuilder stringBuilder;
     boolean encounteredError = false;
-    String state;
     public List<Token> getTokens(){
         return tokens;
     }
@@ -78,7 +76,6 @@ public class Lexer{
 
     private String buildNumber(){   
         stringBuilder = new StringBuilder();
-        state = "";
 
         // Alternative floating-point without integer with optional positive or negative sign
         if(peekPreviousChar(1) == '.'){
@@ -91,7 +88,6 @@ public class Lexer{
                 stringBuilder.append(getChar());
                 nextChar();
             }
-            state = "float";
         }
 
         // for number with integers and optional floating-point
@@ -107,10 +103,7 @@ public class Lexer{
                 nextChar();
             }
 
-            state = "int";
-
             if(getChar() == '.'){
-                state = "float";
                 stringBuilder.append(getChar());  
                 nextChar();
             }
@@ -123,7 +116,6 @@ public class Lexer{
 
         // optional scientific notation
         if(getChar() == 'e' || getChar() == 'E'){
-            state = "double";
             stringBuilder.append(getChar());
             nextChar();
 
@@ -139,11 +131,9 @@ public class Lexer{
 
         // optional float or double suffix
         if(getChar() == 'f' || getChar() == 'F'){
-            state = "float";
             stringBuilder.append(getChar());
             nextChar();
         } else if(getChar() == 'd' || getChar() == 'D'){
-            state = "double";
             stringBuilder.append(getChar());
             nextChar();
         }
@@ -151,7 +141,6 @@ public class Lexer{
 
         // return immediately
         if(isLetter(getChar())){
-            state = "error";
             return stringBuilder.toString();
         }
         
@@ -176,7 +165,7 @@ public class Lexer{
             case "true":
             case "false":
                 tokens.add(new Token(Token.Type.BOOLEAN, str));
-
+                break;
             default:
                 tokens.add(new Token(Token.Type.IDENTIFIER, str));
                 break;
@@ -187,22 +176,8 @@ public class Lexer{
     private void tokenizeDigit(){
         String str = buildNumber();
         if(isWhitespace(getChar()) || getChar() == ';'){
-            switch(state){
-                case "int":
-                    tokens.add(new Token(Token.Type.INT, str));
-                    break;
-                case "float":
-                    tokens.add(new Token(Token.Type.FLOAT, str));
-                    break;
-                case "double":
-                    tokens.add(new Token(Token.Type.DOUBLE, str));
-                    break;
-                case "error":
-                case "":
-                default:
-                    System.out.println("error");
-            } 
-            currentChar--;  
+            tokens.add(new Token(Token.Type.CONSTANT, str));
+            currentChar--;
         } else {
             encounteredError = true;
             stringBuilder = new StringBuilder();
