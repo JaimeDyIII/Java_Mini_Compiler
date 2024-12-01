@@ -41,6 +41,20 @@ public class GUI extends JFrame {
         
         codeTextField.setPreferredSize(new Dimension(400, 30));
 
+        JButton semanticAnalysisButton = new JButton("Semantic Analysis");
+        semanticAnalysisButton.addActionListener((ActionEvent e) -> {
+            parser.runSemanticAnalysis();
+            semanticAnalysisButton.setEnabled(false);
+        });
+
+        JButton syntaxAnalysisButton = new JButton("Syntax Analysis");
+        syntaxAnalysisButton.addActionListener((ActionEvent e) -> {
+            parser = new Parser(tokens, this);
+            parser.runSyntaxAnalysis();
+            semanticAnalysisButton.setEnabled(true);
+            syntaxAnalysisButton.setEnabled(false);
+        });
+
         JButton lexicalAnalysisButton = new JButton("Lexical Analysis");
         lexicalAnalysisButton.addActionListener((ActionEvent e) -> {
             try {
@@ -50,20 +64,12 @@ public class GUI extends JFrame {
                 for(Token token: tokens){
                     System.out.println(token.toString());
                 }
+
+                syntaxAnalysisButton.setEnabled(true);
+                lexicalAnalysisButton.setEnabled(false);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
-        });
-
-        JButton syntaxAnalysisButton = new JButton("Syntax Analysis");
-        syntaxAnalysisButton.addActionListener((ActionEvent e) -> {
-            parser = new Parser(tokens, this);
-            parser.runSyntaxAnalysis();
-        });
-
-        JButton semanticAnalysisButton = new JButton("Semantic Analysis");
-        semanticAnalysisButton.addActionListener((ActionEvent e) -> {
-            parser.runSemanticAnalysis();
         });
 
         JButton clearButton = new JButton("Clear");
@@ -90,8 +96,6 @@ public class GUI extends JFrame {
                 try {
                     if(file != null){
                         lexicalAnalysisButton.setEnabled(true);
-                        syntaxAnalysisButton.setEnabled(true);
-                        semanticAnalysisButton.setEnabled(true);
                     }
                     String codeText = new String(Files.readAllBytes(file.toPath()));
                     codeTextArea.setText(codeText);
@@ -104,8 +108,6 @@ public class GUI extends JFrame {
                 codeTextField.setText("No file selected.");
             }
         });
-        
-
 
         if(file == null){
             lexicalAnalysisButton.setEnabled(false);

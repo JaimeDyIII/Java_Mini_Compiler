@@ -36,7 +36,6 @@ public class Parser{
 
     private boolean isEndOfFile(){
         return currentTokenType() == Token.Type.EOF;
-
     }
 
     private boolean isDelimiter(){
