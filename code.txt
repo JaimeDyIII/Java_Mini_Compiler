@@ -2,3 +2,6 @@ int i = 123;
 float f;
 double d = 12.2e13d;
 d = 12.32d;
+String s = "string";
+char c = 'c';
+boolean b = true;

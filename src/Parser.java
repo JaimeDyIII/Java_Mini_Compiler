@@ -4,13 +4,19 @@ public class Parser{
     private int position;
     private List<Token> tokens;
     private GUI gui;
-    private boolean encounteredError = false;
+    private boolean encounteredSyntaxError;
+    SemanticAnalyzer semanticAnalyzer;
+    String currentVariableName;
+    Token.Type currentVariableDataType;
+    Token.Type currentVariableDeclaredType;
 
 
     public Parser(List<Token> tokens, GUI gui){
         this.gui = gui;
+        semanticAnalyzer = new SemanticAnalyzer();
         this.tokens = tokens;
-        position = 0;
+        this.encounteredSyntaxError = false;
+        this.position = 0;
         parse();
     }
     
@@ -42,7 +48,7 @@ public class Parser{
     }
 
     private void syntaxError(Token token){
-        encounteredError = true;
+        encounteredSyntaxError = true;
         if(isEndOfFile()){
             System.out.println("Reached end of file while parsing!");
         } else {
@@ -51,18 +57,56 @@ public class Parser{
     }
 
     private boolean isData(){
-        return  currentTokenType() == Token.Type.CONSTANT   || 
-                currentTokenType() == Token.Type.CHAR_LIT   || 
+        return  currentTokenType() == Token.Type.INT      ||
+                currentTokenType() == Token.Type.FLOAT    ||
+                currentTokenType() == Token.Type.BYTE     ||
+                currentTokenType() == Token.Type.SHORT    ||
+                currentTokenType() == Token.Type.LONG     ||
+                currentTokenType() == Token.Type.DOUBLE   ||
+                currentTokenType() == Token.Type.BOOLEAN  || 
+                currentTokenType() == Token.Type.CHAR_LIT || 
                 currentTokenType() == Token.Type.STRING_LIT;
     }
 
+    private Token.Type determineVariableType(String lexeme) {
+        switch(lexeme){
+            case "int":
+                return Token.Type.INT;
+            case "float":
+                return Token.Type.FLOAT;
+            case "double":
+                return Token.Type.DOUBLE;
+            case "boolean":
+                return Token.Type.BOOLEAN;
+            case "char":
+                return Token.Type.CHAR_LIT;
+            case "String":
+                return Token.Type.STRING_LIT;
+            default:
+                semanticAnalyzer.addError("Invalid data type: " + lexeme);
+                return null;
+        }
+    }    
+
     private void expression(){
+        currentVariableName = null;
+        currentVariableDeclaredType = null;
+        currentVariableDataType = null;
+
         switch(currentTokenType()){
             case DATA_TYPES:
+                currentVariableDeclaredType = determineVariableType(currentToken().getLexeme());
                 nextToken();
                 variableDeclaration();
                 break;
             case IDENTIFIER:
+                currentVariableName = currentToken().getLexeme();
+
+                if(!semanticAnalyzer.isVariableDeclared(currentVariableName)){
+                    semanticAnalyzer.setEncounteredSemanticError(true);
+                    semanticAnalyzer.addError("Variable is " + currentVariableName + "is not declared!");
+                }
+
                 nextToken();
                 variableReassignment();
                 break;
@@ -79,21 +123,22 @@ public class Parser{
             syntaxError(currentToken());
             return;
         }
-
+        
+        currentVariableName = currentToken().getLexeme();
         nextToken();
 
         switch(currentTokenType()){
             case DELIMITER:
+                semanticAnalyzer.addVariable(currentVariableName, currentVariableDeclaredType);
                 nextToken();
-                
                 if(!isEndOfFile()){
                     expression();
                 } else {
                     syntaxError(currentToken());
                 }
-                
                 break;
             case ASSIGN_OP:
+                semanticAnalyzer.addVariable(currentVariableName, currentVariableDeclaredType);
                 nextToken();
                 variableInstatiation();
                 break;
@@ -108,6 +153,8 @@ public class Parser{
             return;
         }
 
+        currentVariableDataType = currentToken().getTokenType();
+        semanticAnalyzer.typeCheck(currentVariableName, currentVariableDataType);
         nextToken();
 
         if(!isDelimiter()){
@@ -135,6 +182,8 @@ public class Parser{
             return;
         }
 
+        currentVariableDataType = currentToken().getTokenType();
+        semanticAnalyzer.typeCheck(currentVariableName, currentVariableDataType);
         nextToken();
 
         if(!isDelimiter()){
@@ -148,17 +197,31 @@ public class Parser{
             expression();
         }
     }
-
+    
     public void parse(){
         expression();
+    }
 
-        if(encounteredError || !isEndOfFile()){
+    public void runSyntaxAnalysis(){
+        if(encounteredSyntaxError || !isEndOfFile()){
             System.out.println("Syntax Error!");
             gui.updateStatus("Syntax Analysis Unsuccessful!");
             return;
         }
-        
+
         System.out.println("Syntax Analysis Successful!");
         gui.updateStatus("Syntax Analysis Successful!");
+    }
+
+    public void runSemanticAnalysis(){
+        if(semanticAnalyzer.hasEncounteredSemanticError()){
+            System.out.println("Semantic Error!");
+            gui.updateStatus("Semantic Analysis Unsuccessful!");
+            semanticAnalyzer.printErrors();
+            return;
+        }
+
+        System.out.println("Semantic Analysis Successful!");
+        gui.updateStatus("Semantic Analysis Successful!");
     }
 }

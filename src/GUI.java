@@ -58,10 +58,12 @@ public class GUI extends JFrame {
         JButton syntaxAnalysisButton = new JButton("Syntax Analysis");
         syntaxAnalysisButton.addActionListener((ActionEvent e) -> {
             parser = new Parser(tokens, this);
+            parser.runSyntaxAnalysis();
         });
 
         JButton semanticAnalysisButton = new JButton("Semantic Analysis");
         semanticAnalysisButton.addActionListener((ActionEvent e) -> {
+            parser.runSemanticAnalysis();
         });
 
         JButton clearButton = new JButton("Clear");

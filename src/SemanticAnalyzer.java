@@ -1,34 +1,71 @@
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SemanticAnalyzer {
-    private Map<String, String> variables;
+    private Map<String, Token.Type> variables;
+    private List<String> errors;
+    private boolean encounteredSemanticError = false;
 
     public SemanticAnalyzer() {
         this.variables = new HashMap<>();
+        this.encounteredSemanticError = false;
+        errors = new ArrayList<>();
     }
     
-    private void addVariable(String variableName, String variableType) {
-        if(variables.containsKey(variableName)){
-            System.out.println("Error: Variable already declared");
-        } else {
+    public boolean hasEncounteredSemanticError() {
+        return encounteredSemanticError;
+    }
+
+    public void setEncounteredSemanticError(boolean encounteredSemanticError) {
+        this.encounteredSemanticError = encounteredSemanticError;
+    }
+
+    public void addError(String error) {
+        errors.add(error);
+    }
+
+
+    public void addVariable(String variableName, Token.Type variableType) {
+        if(!isVariableDeclared(variableName)){
             variables.put(variableName, variableType);
+        } else {
+            encounteredSemanticError = true;
+            errors.add("Error: " + variableName + " is already declared");
         }
     }
     
-    private boolean isVariableDeclared(String variableName) {
+    public boolean isVariableDeclared(String variableName) {
         return variables.containsKey(variableName);
     }
 
-    private String getVariableType(String variableName) {
+    public Token.Type getVariableType(String variableName) {
         return variables.get(variableName);
     }
 
-    private boolean typeCheck(String inputVariableType, String variableType) {
-        return inputVariableType.equals(variableType);
+    public void typeCheck(String variableName, Token.Type variableType) {
+        Token.Type declaredType = getVariableType(variableName);
+        if(declaredType == null) {
+            encounteredSemanticError = true;
+            errors.add("Error: Variable " + variableName + " is not declared.");
+            return;
+        }
+        if(!declaredType.equals(variableType)) {
+            encounteredSemanticError = true;
+            errors.add("Error: Invalid Variable Assignment {" + variableType + "} assigned to {" + declaredType + "}");
+            return;
+        }
     }
 
-    public void SemanticAnalaysis(){
-        
+    public void printErrors(){
+        if(errors.isEmpty()){
+            System.out.println("No errors found");
+            return;
+        }
+
+        for(String error : errors){
+            System.out.println(error);
+        }
     }
 }

@@ -11,6 +11,8 @@ public class Lexer{
     String fileString;
     StringBuilder stringBuilder;
     boolean encounteredError = false;
+    String numberState;
+
     public List<Token> getTokens(){
         return tokens;
     }
@@ -76,9 +78,12 @@ public class Lexer{
 
     private String buildNumber(){   
         stringBuilder = new StringBuilder();
+        numberState = "";
 
         // Alternative floating-point without integer with optional positive or negative sign
         if(peekPreviousChar(1) == '.'){
+            numberState = "double";
+
             if(peekPreviousChar(2) == '+' || peekPreviousChar(2) == '-'){
                 stringBuilder.append(peekPreviousChar(2));
             }
@@ -102,12 +107,15 @@ public class Lexer{
                 stringBuilder.append(getChar());
                 nextChar();
             }
+            numberState="int";
 
             if(getChar() == '.'){
+                numberState = "double";
                 stringBuilder.append(getChar());  
                 nextChar();
-            }
 
+            }
+    
             while(isDigit(getChar())){
                 stringBuilder.append(getChar());
                 nextChar();
@@ -116,6 +124,7 @@ public class Lexer{
 
         // optional scientific notation
         if(getChar() == 'e' || getChar() == 'E'){
+            numberState = "double";
             stringBuilder.append(getChar());
             nextChar();
 
@@ -131,9 +140,11 @@ public class Lexer{
 
         // optional float or double suffix
         if(getChar() == 'f' || getChar() == 'F'){
+            numberState = "float";
             stringBuilder.append(getChar());
             nextChar();
         } else if(getChar() == 'd' || getChar() == 'D'){
+            numberState = "double";
             stringBuilder.append(getChar());
             nextChar();
         }
@@ -141,6 +152,7 @@ public class Lexer{
 
         // return immediately
         if(isLetter(getChar())){
+            numberState = "";
             return stringBuilder.toString();
         }
         
@@ -176,7 +188,20 @@ public class Lexer{
     private void tokenizeDigit(){
         String str = buildNumber();
         if(isWhitespace(getChar()) || getChar() == ';'){
-            tokens.add(new Token(Token.Type.CONSTANT, str));
+            switch(numberState){
+                case "int":
+                    tokens.add(new Token(Token.Type.INT, str));
+                    break;
+                case "double":
+                    tokens.add(new Token(Token.Type.DOUBLE, str));
+                    break;
+                case "float":
+                    tokens.add(new Token(Token.Type.FLOAT, str));
+                    break;
+                case "":
+                default:
+                    System.out.println("Unexpected token found: " + str);
+            }
             currentChar--;
         } else {
             encounteredError = true;
