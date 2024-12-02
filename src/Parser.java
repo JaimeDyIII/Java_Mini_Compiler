@@ -1,12 +1,18 @@
 import java.util.List;
 
 public class Parser{
+
+    // Need to add functionality where it would check if an int could be byte, short, long.
+    // int could probably be also called number instead.
+    // Also, need to check for reserved keywords being used as identifier.
+
     private int position;
     private List<Token> tokens;
     private GUI gui;
     private boolean encounteredSyntaxError;
     SemanticAnalyzer semanticAnalyzer;
     String currentVariableName;
+    String currentVariableValue;
     Token.Type currentVariableDataType;
     Token.Type currentVariableDeclaredType;
 
@@ -56,7 +62,8 @@ public class Parser{
     }
 
     private boolean isData(){
-        return  currentTokenType() == Token.Type.INT      ||
+        return  currentTokenType() == Token.Type.INT_LIT   ||
+                currentTokenType() == Token.Type.INT      ||
                 currentTokenType() == Token.Type.FLOAT    ||
                 currentTokenType() == Token.Type.BYTE     ||
                 currentTokenType() == Token.Type.SHORT    ||
@@ -69,8 +76,14 @@ public class Parser{
 
     private Token.Type determineVariableType(String lexeme) {
         switch(lexeme){
+            case "byte":
+                return Token.Type.BYTE;
+            case "short":
+                return Token.Type.SHORT;
             case "int":
                 return Token.Type.INT;
+            case "long":
+                return Token.Type.LONG;
             case "float":
                 return Token.Type.FLOAT;
             case "double":
@@ -105,6 +118,8 @@ public class Parser{
                     semanticAnalyzer.setEncounteredSemanticError(true);
                     semanticAnalyzer.addError("Variable is " + currentVariableName + "is not declared!");
                 }
+
+                currentVariableDeclaredType = semanticAnalyzer.getVariableType(currentVariableName);
 
                 nextToken();
                 variableReassignment();
@@ -152,9 +167,17 @@ public class Parser{
             return;
         }
 
+        // checking for byte, short, could be placed here.
+        currentVariableValue = currentToken().getLexeme();
         currentVariableDataType = currentToken().getTokenType();
-        semanticAnalyzer.typeCheck(currentVariableName, currentVariableDataType);
-        nextToken();
+
+        if(currentVariableDataType == Token.Type.INT_LIT){
+            semanticAnalyzer.checkNumber(currentVariableName, currentVariableValue);
+            nextToken();
+        } else {
+            semanticAnalyzer.typeCheck(currentVariableName, currentVariableDataType);
+            nextToken();
+        }
 
         if(!isDelimiter()){
             syntaxError(currentToken());
@@ -181,9 +204,16 @@ public class Parser{
             return;
         }
 
+        currentVariableValue = currentToken().getLexeme();
         currentVariableDataType = currentToken().getTokenType();
-        semanticAnalyzer.typeCheck(currentVariableName, currentVariableDataType);
-        nextToken();
+
+        if(currentVariableDataType == Token.Type.INT_LIT){
+            semanticAnalyzer.checkNumber(currentVariableName, currentVariableValue);
+            nextToken();
+        } else {
+            semanticAnalyzer.typeCheck(currentVariableName, currentVariableDataType);
+            nextToken();
+        }
 
         if(!isDelimiter()){
             syntaxError(currentToken());

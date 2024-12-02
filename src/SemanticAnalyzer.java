@@ -51,11 +51,37 @@ public class SemanticAnalyzer {
             errors.add("Error: Variable " + variableName + " is not declared.");
             return;
         }
+
         if(!declaredType.equals(variableType)) {
             encounteredSemanticError = true;
             errors.add("Error: Invalid Variable Assignment {" + variableType + "} assigned to {" + declaredType + "}");
             return;
         }
+    }
+
+    public void checkNumber(String variableName, String variableValue){
+        String valueWithoutLetters = variableValue.replaceAll("[a-zA-Z]", "");
+        long value = Long.parseLong(valueWithoutLetters);
+        Token.Type declaredType = getVariableType(variableName);
+
+        if(declaredType == Token.Type.BYTE && value >= Byte.MIN_VALUE && value <= Byte.MAX_VALUE){
+           return;    
+        }
+
+        if(declaredType == Token.Type.SHORT && value >= Short.MIN_VALUE && value <= Short.MAX_VALUE){
+            return;
+        }
+
+        if(declaredType == Token.Type.INT && value >= Integer.MIN_VALUE && value <= Integer.MAX_VALUE){
+            return;
+        }
+
+        if(declaredType == Token.Type.LONG && value >= Long.MIN_VALUE && value <= Long.MAX_VALUE){
+            return;
+        }
+
+        encounteredSemanticError = true;
+        errors.add("Error: Invalid Variable Assignment {" + variableValue + "} assigned to {" + declaredType + "}");
     }
 
     public void printErrors(){

@@ -23,6 +23,10 @@ public class Lexer{
         tokenize(fileString);
     }
 
+    private void clearTokens(){
+        tokens = new ArrayList<>();
+    }
+
     private boolean isLetter(char c){   
         return Character.isLetter(c);
     }
@@ -147,8 +151,11 @@ public class Lexer{
             numberState = "double";
             stringBuilder.append(getChar());
             nextChar();
+        } else if(getChar() == 'l' || getChar() == 'L'){
+            numberState = "int";
+            stringBuilder.append(getChar());
+            nextChar();
         }
-
 
         // return immediately
         if(isLetter(getChar())){
@@ -167,6 +174,7 @@ public class Lexer{
             case "short":
             case "int":
             case "byte":
+            case "long":
             case "float":
             case "double":
             case "boolean":
@@ -190,7 +198,7 @@ public class Lexer{
         if(isWhitespace(getChar()) || getChar() == ';'){
             switch(numberState){
                 case "int":
-                    tokens.add(new Token(Token.Type.INT, str));
+                    tokens.add(new Token(Token.Type.INT_LIT, str));
                     break;
                 case "double":
                     tokens.add(new Token(Token.Type.DOUBLE, str));

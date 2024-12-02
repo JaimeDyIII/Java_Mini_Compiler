@@ -5,3 +5,6 @@ d = 12.32d;
 String s = "string";
 char c = 'c';
 boolean b = true;
+byte by = -128;
+short sh = 32767;
+long l = 9223372036854775807L;
