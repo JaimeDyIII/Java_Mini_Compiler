@@ -9,7 +9,6 @@ Java Mini Compiler for Variable Assignment in compliance with our Theory of Prog
 4. Syntax Analysis Button - Opens after Lexical Analysis, starts the Syntax Analysis phase.
 5. Semantic Analysis Button - Opens after Syntax Analysis, starts the Semantic Analysis phase.
 
-
 **Mini Compiler Phases**
 1. Lexical Analysis - Read the input file, turn it into string, read it char per char, and turn it into a list of tokens.
 2. Syntax Analysis - Read the list of tokens, checks if the syntax is valid through recursive descent parsing.

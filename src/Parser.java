@@ -62,7 +62,7 @@ public class Parser{
     }
 
     private boolean isData(){
-        return  currentTokenType() == Token.Type.INT_LIT   ||
+        return  currentTokenType() == Token.Type.INT_LIT  ||
                 currentTokenType() == Token.Type.INT      ||
                 currentTokenType() == Token.Type.FLOAT    ||
                 currentTokenType() == Token.Type.BYTE     ||
