@@ -5,15 +5,21 @@ import java.util.Map;
 
 public class SemanticAnalyzer {
     private Map<String, Token.Type> variables;
-    private List<String> errors;
     private boolean encounteredSemanticError = false;
+    private List<String> semanticErrors;
+    private GUI gui;
 
-    public SemanticAnalyzer() {
-        this.variables = new HashMap<>();
+    public SemanticAnalyzer(GUI gui) {
+        semanticErrors = new ArrayList<>();
+        variables = new HashMap<>();
         this.encounteredSemanticError = false;
-        errors = new ArrayList<>();
+        this.gui = gui;
     }
     
+    public List<String> getErrors(){
+        return semanticErrors;
+    }
+
     public boolean hasEncounteredSemanticError() {
         return encounteredSemanticError;
     }
@@ -23,7 +29,7 @@ public class SemanticAnalyzer {
     }
 
     public void addError(String error) {
-        errors.add(error);
+        semanticErrors.add(error);
     }
 
 
@@ -32,7 +38,7 @@ public class SemanticAnalyzer {
             variables.put(variableName, variableType);
         } else {
             encounteredSemanticError = true;
-            errors.add("Error: " + variableName + " is already declared");
+            addError("Error: " + variableName + " is already declared");
         }
     }
     
@@ -48,13 +54,13 @@ public class SemanticAnalyzer {
         Token.Type declaredType = getVariableType(variableName);
         if(declaredType == null) {
             encounteredSemanticError = true;
-            errors.add("Error: Variable " + variableName + " is not declared.");
+            addError("Error: Variable " + variableName + " is not declared.");
             return;
         }
 
         if(!declaredType.equals(variableType)) {
             encounteredSemanticError = true;
-            errors.add("Error: Invalid Variable Assignment {" + variableType + "} assigned to {" + declaredType + "}");
+            addError("Error: Invalid Variable Assignment {" + variableType + "} assigned to {" + declaredType + "}");
             return;
         }
     }
@@ -81,17 +87,12 @@ public class SemanticAnalyzer {
         }
 
         encounteredSemanticError = true;
-        errors.add("Error: Invalid Variable Assignment {" + variableValue + "} assigned to {" + declaredType + "}");
+        gui.update("Error: Invalid Variable Assignment {" + variableValue + "} assigned to {" + declaredType + "}\n");
     }
 
-    public void printErrors(){
-        if(errors.isEmpty()){
-            System.out.println("No errors found");
-            return;
-        }
-
-        for(String error : errors){
-            System.out.println(error);
+    public void logErorrs(){
+        for(String s : semanticErrors){
+            gui.update(s + "\n");
         }
     }
 }

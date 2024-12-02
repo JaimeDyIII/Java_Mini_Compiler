@@ -2,9 +2,7 @@ import java.util.List;
 
 public class Parser{
 
-    // Need to add functionality where it would check if an int could be byte, short, long.
-    // int could probably be also called number instead.
-    // Also, need to check for reserved keywords being used as identifier.
+    // need to check for reserved keywords being used as identifier.
 
     private int position;
     private List<Token> tokens;
@@ -18,8 +16,8 @@ public class Parser{
 
 
     public Parser(List<Token> tokens, GUI gui){
+        semanticAnalyzer = new SemanticAnalyzer(gui);
         this.gui = gui;
-        semanticAnalyzer = new SemanticAnalyzer();
         this.tokens = tokens;
         this.encounteredSyntaxError = false;
         this.position = 0;
@@ -50,15 +48,6 @@ public class Parser{
 
     private boolean isAssignment(){
         return currentTokenType() == Token.Type.ASSIGN_OP;
-    }
-
-    private void syntaxError(Token token){
-        encounteredSyntaxError = true;
-        if(isEndOfFile()){
-            System.out.println("Reached end of file while parsing!");
-        } else {
-            System.out.println("Syntax Error: " + token);
-        }
     }
 
     private boolean isData(){
@@ -125,16 +114,16 @@ public class Parser{
                 variableReassignment();
                 break;
             case EOF:
-                syntaxError(currentToken());
+                gui.update("Reached end of file while parsing!\n");
                 break;
             default:
-                syntaxError(currentToken());
+                gui.update("Unexpected " + currentToken() + "\nExpected Token Type: DATA_TYPES or IDENTIFIER");
         }
     }
 
     private void variableDeclaration(){
         if(currentTokenType() != Token.Type.IDENTIFIER){
-            syntaxError(currentToken());
+            gui.update("Unexpected " + currentToken() + "\nExpected Token Type: IDENTIFIER");
             return;
         }
         
@@ -147,8 +136,6 @@ public class Parser{
                 nextToken();
                 if(!isEndOfFile()){
                     expression();
-                } else {
-                    syntaxError(currentToken());
                 }
                 break;
             case ASSIGN_OP:
@@ -157,13 +144,14 @@ public class Parser{
                 variableInstatiation();
                 break;
             default:
-                syntaxError(currentToken());
+                gui.update("Unexpected " + currentToken() + "\nExpected Token Type: DELIMITER or ASSIGN_OP");
+
         }
     }
 
     private void variableInstatiation(){
         if(!isData()) {
-            syntaxError(currentToken());
+            gui.update("Unexpected " + currentToken() + "\nExpected Token Type: Literals");
             return;
         }
 
@@ -180,7 +168,7 @@ public class Parser{
         }
 
         if(!isDelimiter()){
-            syntaxError(currentToken());
+            gui.update("Unexpected " + currentToken() + "\nExpected Token Type: DELIMITER");
             return;
         }
 
@@ -193,14 +181,14 @@ public class Parser{
 
     private void variableReassignment(){
         if(!isAssignment()){
-            syntaxError(currentToken());
+            gui.update("Unexpected " + currentToken() + "\nExpected Token Type: ASSIGN_OP");
             return;
         }
 
         nextToken();
 
         if(!isData()){
-            syntaxError(currentToken());
+            gui.update("Unexpected " + currentToken() + "\nExpected Token Type: Literals");
             return;
         }
 
@@ -216,7 +204,7 @@ public class Parser{
         }
 
         if(!isDelimiter()){
-            syntaxError(currentToken());
+            gui.update("Unexpected " + currentToken() + "\nExpected Token Type: DELIMITER");
             return;
         }
 
@@ -233,24 +221,20 @@ public class Parser{
 
     public void runSyntaxAnalysis(){
         if(encounteredSyntaxError || !isEndOfFile()){
-            System.out.println("Syntax Error!");
-            gui.updateStatus("Syntax Analysis Unsuccessful!");
+            gui.update("Syntax Analysis Unsuccessful!\n");
             return;
         }
 
-        System.out.println("Syntax Analysis Successful!");
-        gui.updateStatus("Syntax Analysis Successful!");
+        gui.update("Syntax Analysis Successful!\n");
     }
 
     public void runSemanticAnalysis(){
-        if(semanticAnalyzer.hasEncounteredSemanticError()){
-            System.out.println("Semantic Error!");
-            gui.updateStatus("Semantic Analysis Unsuccessful!");
-            semanticAnalyzer.printErrors();
+        if(semanticAnalyzer.hasEncounteredSemanticError() || !isEndOfFile() || !semanticAnalyzer.getErrors().isEmpty()){
+            gui.update("Semantic Analysis Unsuccessful!\n");
+            semanticAnalyzer.logErorrs();
             return;
         }
 
-        System.out.println("Semantic Analysis Successful!");
-        gui.updateStatus("Semantic Analysis Successful!");
+        gui.update("Semantic Analysis Successful!\n");
     }
 }

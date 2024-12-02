@@ -195,7 +195,7 @@ public class Lexer{
 
     private void tokenizeDigit(){
         String str = buildNumber();
-        if(isWhitespace(getChar()) || getChar() == ';'){
+        if(isWhitespace(getChar()) || getChar() == ';' || isEndOfFile()){
             switch(numberState){
                 case "int":
                     tokens.add(new Token(Token.Type.INT_LIT, str));
@@ -208,7 +208,7 @@ public class Lexer{
                     break;
                 case "":
                 default:
-                    System.out.println("Unexpected token found: " + str);
+                    gui.update("Unexpected token found: " + str + "\n");
             }
             currentChar--;
         } else {
@@ -221,7 +221,7 @@ public class Lexer{
                 stringBuilder.append(getChar());
             }
 
-            System.out.println("Unexpected token found: " + stringBuilder.toString());
+            gui.update("Unexpected token found: " + stringBuilder.toString() + "\n");
         }
     }
 
@@ -241,7 +241,7 @@ public class Lexer{
 
         if(isEndOfFile()){
             encounteredError = true;
-            System.out.println("Unclosed String literal found: " + stringBuilder.toString());
+            gui.update("Unclosed String literal found: " + stringBuilder.toString() + "\n");
         } else {
             tokens.add(new Token(Token.Type.STRING_LIT, stringBuilder.toString()));
         }
@@ -263,7 +263,7 @@ public class Lexer{
 
         if(isEndOfFile()){
             encounteredError = true;
-            System.out.println("Unclosed Character literal found: " + stringBuilder.toString());
+            gui.update("Unclosed char literal found: " + stringBuilder.toString() + "\n");
         } else {
             tokens.add(new Token(Token.Type.CHAR_LIT, stringBuilder.toString()));
         }
@@ -287,6 +287,13 @@ public class Lexer{
                 case ';':
                     tokens.add(new Token(Token.Type.DELIMITER, ";"));
                     break;
+                case '-':
+                case '+':
+                    if(isDigit(peekNextChar(1))){
+                        nextChar();
+                        tokenizeDigit();
+                        break;
+                    }
                 default:
                     if(isWhitespace(c)){
                         // ignore
@@ -296,17 +303,21 @@ public class Lexer{
                         tokenizeDigit();
                     } else {
                         encounteredError = true;
-                        System.out.println("Unexpected character found: " + c);
+                        gui.update("Unexpected character found: " + c + "\n");
                     }
             }
             nextChar();
         }
         tokens.add(new Token(Token.Type.EOF, "eof"));
 
+        for(Token token: tokens){
+            gui.update(token.toString());
+        }
+
         if(encounteredError == false){
-            gui.updateStatus("Lexical Analysis Successful!");
+            gui.update("Lexical Analysis Successful!\n");
         } else {
-            gui.updateStatus("Lexical Analysis Failed!");
+            gui.update("Lexical Analysis Failed!\n");
         }
     }
 }
