@@ -32,53 +32,58 @@ public class GUI extends JFrame {
         codeTextArea.setBorder(new CompoundBorder(
             new LineBorder(Color.GRAY, 1),
             new EmptyBorder(10, 10, 10, 10)
-            ));
-            
-            console.setLineWrap(true);
-            console.setEditable(false);
-            
-            JScrollPane consoleScrollPane = new JScrollPane(console);
-            consoleScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-            
-            openFileButton = new JButton("Open File");
-            lexicalAnalysisButton = new JButton("Lexical Analysis");
-            syntaxAnalysisButton = new JButton("Syntax Analysis");
-            semanticAnalysisButton = new JButton("Semantic Analysis");
-            clearButton = new JButton("Clear");
-            
-            lexicalAnalysisButton.addActionListener(this::handleLexicalAnalysis);
-            syntaxAnalysisButton.addActionListener(this::handleSyntaxAnalysis);
-            semanticAnalysisButton.addActionListener(this::handleSemanticAnalysis);
-            clearButton.addActionListener(this::handleClear);
-            openFileButton.addActionListener(this::handleOpenFile);
-            
-            
-            JPanel buttonPanel = new JPanel();
-            buttonPanel.setLayout(new GridLayout(5, 1));
-            buttonPanel.add(openFileButton);
-            buttonPanel.add(lexicalAnalysisButton);
-            buttonPanel.add(syntaxAnalysisButton);
-            buttonPanel.add(semanticAnalysisButton);
-            buttonPanel.add(clearButton);
-            
-            JPanel textPanel = new JPanel();
-            textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
-            textPanel.add(codeTextArea);
-            textPanel.add(consoleScrollPane);
+        ));
+        
+        console.setLineWrap(true);
+        console.setEditable(false);
+        
+        JScrollPane consoleScrollPane = new JScrollPane(console);
+        consoleScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        consoleScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
-            JPanel mainPanel = new JPanel(new BorderLayout());
-            mainPanel.add(buttonPanel, BorderLayout.WEST);
-            mainPanel.add(textPanel, BorderLayout.CENTER);
-            
-            if(file == null){
-                lexicalAnalysisButton.setEnabled(false);
-                syntaxAnalysisButton.setEnabled(false);
-                semanticAnalysisButton.setEnabled(false);
-            }
-            
-            add(mainPanel);
-            setVisible(true);
+        JScrollPane codeScrollPane = new JScrollPane(codeTextArea);
+        codeScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        codeScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
+        openFileButton = new JButton("Open File");
+        lexicalAnalysisButton = new JButton("Lexical Analysis");
+        syntaxAnalysisButton = new JButton("Syntax Analysis");
+        semanticAnalysisButton = new JButton("Semantic Analysis");
+        clearButton = new JButton("Clear");
+        
+        lexicalAnalysisButton.addActionListener(this::handleLexicalAnalysis);
+        syntaxAnalysisButton.addActionListener(this::handleSyntaxAnalysis);
+        semanticAnalysisButton.addActionListener(this::handleSemanticAnalysis);
+        clearButton.addActionListener(this::handleClear);
+        openFileButton.addActionListener(this::handleOpenFile);
+        
+        
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new GridLayout(5, 1));
+        buttonPanel.add(openFileButton);
+        buttonPanel.add(lexicalAnalysisButton);
+        buttonPanel.add(syntaxAnalysisButton);
+        buttonPanel.add(semanticAnalysisButton);
+        buttonPanel.add(clearButton);
+        
+        JPanel textPanel = new JPanel();
+        textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
+        textPanel.add(codeScrollPane);
+        textPanel.add(consoleScrollPane);
+
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.add(buttonPanel, BorderLayout.WEST);
+        mainPanel.add(textPanel, BorderLayout.CENTER);
+        
+        if(file == null){
+            lexicalAnalysisButton.setEnabled(false);
+            syntaxAnalysisButton.setEnabled(false);
+            semanticAnalysisButton.setEnabled(false);
         }
+        
+        add(mainPanel);
+        setVisible(true);
+    }
         
     private void handleOpenFile(ActionEvent e){
         JFileChooser fileChooser = new JFileChooser();
@@ -132,7 +137,7 @@ public class GUI extends JFrame {
 
     private void handleClear(ActionEvent e){
         file = null;
-        console.append("Cleared file!");
+        console.append("Cleared file!\n");
         codeTextArea.setText(null);
         lexicalAnalysisButton.setEnabled(false);
         syntaxAnalysisButton.setEnabled(false);
