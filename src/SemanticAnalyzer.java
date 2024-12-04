@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +9,16 @@ public class SemanticAnalyzer {
     private boolean encounteredSemanticError = false;
     private List<String> semanticErrors;
     private GUI gui;
+    private final List<String> reservedKeywords = Arrays.asList(
+        "abstract", "assert", "boolean", "break", "byte", "case", "catch", "char", 
+        "class", "const", "continue", "default", "do", "double", "else", "enum", 
+        "extends", "final", "finally", "float", "for", "goto", "if", "implements", 
+        "import", "instanceof", "int", "interface", "long", "native", "new", "null", 
+        "package", "private", "protected", "public", "return", "short", "static", 
+        "strictfp", "super", "switch", "synchronized", "this", "throw", "throws", 
+        "transient", "try", "void", "volatile", "while", "var", "record", "sealed", 
+        "non-sealed", "permits"
+    );
 
     public SemanticAnalyzer(GUI gui) {
         semanticErrors = new ArrayList<>();
@@ -87,12 +98,20 @@ public class SemanticAnalyzer {
         }
 
         encounteredSemanticError = true;
-        gui.update("Error: Invalid Variable Assignment {" + variableValue + "} assigned to {" + declaredType + "}\n");
+        gui.update("Error: Invalid Variable Assignment {" + variableValue + "} assigned to {" + declaredType + "}");
+    }
+
+    public void checkForReservedKeywords(String identifierName){
+        if(reservedKeywords.contains(identifierName)){
+            encounteredSemanticError = true;
+            addError("Error: Encountered reserved keyword as identifier {" + identifierName + "}");
+
+        }
     }
 
     public void logErorrs(){
         for(String s : semanticErrors){
-            gui.update(s + "\n");
+            gui.update(s);
         }
     }
 }

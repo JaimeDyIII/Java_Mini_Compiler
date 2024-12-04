@@ -1,0 +1,15 @@
+int i = true;
+String s = '123';
+char c = "adfadsf";
+
+asdf = 123;
+sdafgk = false;
+
+int i;
+String s;
+char c;
+
+int else = 123;
+String public = "public";
+long if = 1234567890L;
+

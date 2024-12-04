@@ -2,8 +2,6 @@ import java.util.List;
 
 public class Parser{
 
-    // need to check for reserved keywords being used as identifier.
-
     private int position;
     private List<Token> tokens;
     private GUI gui;
@@ -102,10 +100,11 @@ public class Parser{
                 break;
             case IDENTIFIER:
                 currentVariableName = currentToken().getLexeme();
+                semanticAnalyzer.checkForReservedKeywords(currentVariableName);
 
                 if(!semanticAnalyzer.isVariableDeclared(currentVariableName)){
                     semanticAnalyzer.setEncounteredSemanticError(true);
-                    semanticAnalyzer.addError("Variable is " + currentVariableName + "is not declared!");
+                    semanticAnalyzer.addError("Error: Variable " + currentVariableName + " is not declared!");
                 }
 
                 currentVariableDeclaredType = semanticAnalyzer.getVariableType(currentVariableName);
@@ -114,7 +113,7 @@ public class Parser{
                 variableReassignment();
                 break;
             case EOF:
-                gui.update("Reached end of file while parsing!\n");
+                gui.update("Reached end of file while parsing!");
                 break;
             default:
                 gui.update("Unexpected " + currentToken() + "\nExpected Token Type: DATA_TYPES or IDENTIFIER");
@@ -128,6 +127,7 @@ public class Parser{
         }
         
         currentVariableName = currentToken().getLexeme();
+        semanticAnalyzer.checkForReservedKeywords(currentVariableName);
         nextToken();
 
         switch(currentTokenType()){
@@ -155,7 +155,6 @@ public class Parser{
             return;
         }
 
-        // checking for byte, short, could be placed here.
         currentVariableValue = currentToken().getLexeme();
         currentVariableDataType = currentToken().getTokenType();
 
@@ -230,8 +229,8 @@ public class Parser{
 
     public void runSemanticAnalysis(){
         if(semanticAnalyzer.hasEncounteredSemanticError() || !isEndOfFile() || !semanticAnalyzer.getErrors().isEmpty()){
-            gui.update("Semantic Analysis Unsuccessful!\n");
             semanticAnalyzer.logErorrs();
+            gui.update("Semantic Analysis Unsuccessful!\n");
             return;
         }
 

@@ -208,7 +208,7 @@ public class Lexer{
                     break;
                 case "":
                 default:
-                    gui.update("Unexpected token found: " + str + "\n");
+                    gui.update("Unexpected token found: " + str);
             }
             currentChar--;
         } else {
@@ -221,7 +221,7 @@ public class Lexer{
                 stringBuilder.append(getChar());
             }
 
-            gui.update("Unexpected token found: " + stringBuilder.toString() + "\n");
+            gui.update("Unexpected token found: " + stringBuilder.toString());
         }
     }
 
@@ -241,7 +241,7 @@ public class Lexer{
 
         if(isEndOfFile()){
             encounteredError = true;
-            gui.update("Unclosed String literal found: " + stringBuilder.toString() + "\n");
+            gui.update("Unclosed String literal found: " + stringBuilder.toString());
         } else {
             tokens.add(new Token(Token.Type.STRING_LIT, stringBuilder.toString()));
         }
@@ -263,7 +263,7 @@ public class Lexer{
 
         if(isEndOfFile()){
             encounteredError = true;
-            gui.update("Unclosed char literal found: " + stringBuilder.toString() + "\n");
+            gui.update("Unclosed char literal found: " + stringBuilder.toString());
         } else {
             tokens.add(new Token(Token.Type.CHAR_LIT, stringBuilder.toString()));
         }
@@ -303,18 +303,18 @@ public class Lexer{
                         tokenizeDigit();
                     } else {
                         encounteredError = true;
-                        gui.update("Unexpected character found: " + c + "\n");
+                        gui.update("Unexpected character found: " + c);
                     }
             }
             nextChar();
         }
         tokens.add(new Token(Token.Type.EOF, "eof"));
 
-        for(Token token: tokens){
-            gui.update(token.toString());
-        }
 
         if(encounteredError == false){
+            for(Token token: tokens){
+                gui.update(token.toString());
+            }
             gui.update("Lexical Analysis Successful!\n");
         } else {
             gui.update("Lexical Analysis Failed!\n");

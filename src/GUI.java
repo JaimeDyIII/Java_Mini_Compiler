@@ -14,7 +14,7 @@ public class GUI extends JFrame {
     private List<Token> tokens;
     private JTextArea console, codeTextArea;
     private JButton openFileButton, lexicalAnalysisButton, syntaxAnalysisButton, semanticAnalysisButton, clearButton;
-
+    
     public GUI() {
         appFrame();
     }
@@ -32,7 +32,7 @@ public class GUI extends JFrame {
         codeTextArea.setBorder(new CompoundBorder(
             new LineBorder(Color.GRAY, 1),
             new EmptyBorder(10, 10, 10, 10)
-        ));
+            ));
         
         console.setLineWrap(true);
         console.setEditable(false);
@@ -44,7 +44,7 @@ public class GUI extends JFrame {
         JScrollPane codeScrollPane = new JScrollPane(codeTextArea);
         codeScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         codeScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-
+        
         openFileButton = new JButton("Open File");
         lexicalAnalysisButton = new JButton("Lexical Analysis");
         syntaxAnalysisButton = new JButton("Syntax Analysis");
