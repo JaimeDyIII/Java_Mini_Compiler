@@ -18,3 +18,4 @@ Java Mini Compiler for Variable Assignment in compliance with our Theory of Prog
 1. Type Mismatch - When the type of the variable that is declared is not the same as the type of the value.
 2. Undeclared Variable - When the variable is not declared but has been tried to assign value to.
 3. Multiple Declaration - When the variable is declared more than once.
+4. Reservered Keywords - When the variable identifier is already a reserved keyword in the language.
