@@ -8,10 +8,10 @@ public class Lexer{
     private int currentChar = 0;
     private List<Token> tokens;
     private GUI gui;
-    String fileString;
-    StringBuilder stringBuilder;
-    boolean encounteredError = false;
-    String numberState;
+    private String fileString;
+    private StringBuilder stringBuilder;
+    private boolean encounteredError = false;
+    private String numberState;
 
     public List<Token> getTokens(){
         return tokens;
@@ -21,6 +21,10 @@ public class Lexer{
         this.gui = gui;
         fileString = Files.readString(file.toPath());
         tokenize(fileString);
+    }
+
+    public boolean hasEncounteredError(){
+        return this.encounteredError;
     }
 
     private void clearTokens(){

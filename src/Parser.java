@@ -12,7 +12,6 @@ public class Parser{
     Token.Type currentVariableDataType;
     Token.Type currentVariableDeclaredType;
 
-
     public Parser(List<Token> tokens, GUI gui){
         semanticAnalyzer = new SemanticAnalyzer(gui);
         this.gui = gui;
@@ -22,6 +21,14 @@ public class Parser{
         parse();
     }
     
+    public boolean hasEncounteredSyntaxError(){
+        return this.encounteredSyntaxError;
+    }
+
+    public boolean hasEncounteredSemanticError(){
+        return semanticAnalyzer.hasEncounteredSemanticError();
+    }
+
     private Token currentToken(){
         return tokens.get(position);
     }
@@ -113,15 +120,19 @@ public class Parser{
                 variableReassignment();
                 break;
             case EOF:
+                encounteredSyntaxError = true;
                 gui.update("Reached end of file while parsing!");
                 break;
             default:
+                encounteredSyntaxError = true;
                 gui.update("Unexpected " + currentToken() + "\nExpected Token Type: DATA_TYPES or IDENTIFIER");
+                return;
         }
     }
 
     private void variableDeclaration(){
         if(currentTokenType() != Token.Type.IDENTIFIER){
+            encounteredSyntaxError = true;
             gui.update("Unexpected " + currentToken() + "\nExpected Token Type: IDENTIFIER");
             return;
         }
@@ -144,6 +155,7 @@ public class Parser{
                 variableInstatiation();
                 break;
             default:
+                encounteredSyntaxError = true;    
                 gui.update("Unexpected " + currentToken() + "\nExpected Token Type: DELIMITER or ASSIGN_OP");
 
         }
@@ -151,8 +163,8 @@ public class Parser{
 
     private void variableInstatiation(){
         if(!isData()) {
+            encounteredSyntaxError = true;
             gui.update("Unexpected " + currentToken() + "\nExpected Token Type: Literals");
-            return;
         }
 
         currentVariableValue = currentToken().getLexeme();
@@ -167,6 +179,7 @@ public class Parser{
         }
 
         if(!isDelimiter()){
+            encounteredSyntaxError = true;
             gui.update("Unexpected " + currentToken() + "\nExpected Token Type: DELIMITER");
             return;
         }
@@ -180,6 +193,7 @@ public class Parser{
 
     private void variableReassignment(){
         if(!isAssignment()){
+            encounteredSyntaxError = true;
             gui.update("Unexpected " + currentToken() + "\nExpected Token Type: ASSIGN_OP");
             return;
         }
@@ -187,6 +201,7 @@ public class Parser{
         nextToken();
 
         if(!isData()){
+            encounteredSyntaxError = true;
             gui.update("Unexpected " + currentToken() + "\nExpected Token Type: Literals");
             return;
         }
@@ -203,6 +218,7 @@ public class Parser{
         }
 
         if(!isDelimiter()){
+            encounteredSyntaxError = true;
             gui.update("Unexpected " + currentToken() + "\nExpected Token Type: DELIMITER");
             return;
         }

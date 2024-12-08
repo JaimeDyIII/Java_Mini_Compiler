@@ -114,25 +114,42 @@ public class GUI extends JFrame {
     private void handleLexicalAnalysis(ActionEvent e) {
         try {
             lexer = new Lexer(file, this);
-            tokens = lexer.getTokens();
-            
-            syntaxAnalysisButton.setEnabled(true);
-            lexicalAnalysisButton.setEnabled(false);
+            if(!lexer.hasEncounteredError()){                
+                tokens = lexer.getTokens();
+                syntaxAnalysisButton.setEnabled(true);
+                lexicalAnalysisButton.setEnabled(false);
+            } else {
+                syntaxAnalysisButton.setEnabled(false);
+                lexicalAnalysisButton.setEnabled(false);
+            }
         } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
 
     private void handleSyntaxAnalysis(ActionEvent e) {
-        parser = new Parser(tokens, this);
-        parser.runSyntaxAnalysis();
-        semanticAnalysisButton.setEnabled(true);
-        syntaxAnalysisButton.setEnabled(false);
+        try {
+            parser = new Parser(tokens, this);
+            parser.runSyntaxAnalysis();
+            if(!parser.hasEncounteredSyntaxError()){
+                semanticAnalysisButton.setEnabled(true);
+                syntaxAnalysisButton.setEnabled(false);   
+            } else {
+                semanticAnalysisButton.setEnabled(false);
+                syntaxAnalysisButton.setEnabled(false);  
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     private void handleSemanticAnalysis(ActionEvent e){
-        parser.runSemanticAnalysis();
-        semanticAnalysisButton.setEnabled(false);
+        try {
+            parser.runSemanticAnalysis();
+            semanticAnalysisButton.setEnabled(false);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     private void handleClear(ActionEvent e){

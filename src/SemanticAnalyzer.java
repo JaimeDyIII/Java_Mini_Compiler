@@ -98,7 +98,7 @@ public class SemanticAnalyzer {
         }
 
         encounteredSemanticError = true;
-        gui.update("Error: Invalid Variable Assignment {" + variableValue + "} assigned to {" + declaredType + "}");
+        addError("Error: Invalid Variable Assignment {" + variableValue + "} assigned to {" + declaredType + "}");
     }
 
     public void checkForReservedKeywords(String identifierName){
